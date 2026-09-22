@@ -95,9 +95,7 @@
     "alreadyHaveAccount": "Already have an account? ",
     "dontHaveAccount": "Don't have an account? ",
     "orSignInWith": "or sign in with",
-    "guest": "Guest",
-    "prototypeNotice": "Prototype Access: For SIH evaluation, please use the Guest Login option to access the platform.",
-    "prototypeBadge": "Prototype Access"
+    "guest": "Guest"
   },
   "marketplace": {
     "title": "Tender Marketplace",
