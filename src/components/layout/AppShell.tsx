@@ -24,6 +24,22 @@ export function AppShell({ children }: AppShellProps) {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
+
+  useEffect(() => {
+    setCurrentTime(new Date());
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatGovDate = (date: Date | null) => {
+    if (!date) return 'Loading...';
+    const dateStr = date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    const timeStr = date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    return `${dateStr} | ${timeStr.toUpperCase()} IST`;
+  };
 
   // Determine current active persona based on route if not explicitly set
   let activePersona: UserPersona = currentPersona || 'CLIENT';
@@ -79,7 +95,32 @@ export function AppShell({ children }: AppShellProps) {
   }[activePersona];
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-surface-alt font-sans text-on-surface">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-surface-alt font-sans text-on-surface">
+      {/* GOVERNMENT UTILITY BAR */}
+      <div className="bg-primary-fixed text-primary px-4 py-1.5 text-[11px] font-bold tracking-wide flex justify-between items-center border-b border-primary-fixed-dim/50 shrink-0 z-30 hidden sm:flex">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-[14px]">account_balance</span>
+          Government Procurement Compliance Portal
+        </div>
+        <div className="flex items-center gap-6">
+          <span className="hidden md:block opacity-90">Digital India • Secure • Transparent • Accountable</span>
+          <div className="flex items-center gap-2 border-l border-primary/20 pl-4">
+            <span className="material-symbols-outlined text-[14px]">call</span>
+            Demo Helpdesk: 1800-XXX-XXXX
+          </div>
+          <div className="flex items-center gap-2 border-l border-primary/20 pl-4 font-mono text-[10px]">
+            <span className="material-symbols-outlined text-[14px]">schedule</span>
+            {formatGovDate(currentTime)}
+          </div>
+        </div>
+      </div>
+      {/* Mobile Utility Bar */}
+      <div className="bg-primary-fixed text-primary px-3 py-1 text-[10px] font-bold flex justify-between items-center border-b border-primary-fixed-dim/50 shrink-0 z-30 sm:hidden">
+        <div>Demo Helpdesk: 1800-XXX-XXXX</div>
+        <div className="font-mono">{formatGovDate(currentTime)}</div>
+      </div>
+
+      <div className="flex flex-1 min-h-0 overflow-hidden">
       {/* SIDEBAR matching NEW UI */}
       <aside className="w-sidebar shrink-0 bg-surface-container-lowest border-r border-outline-variant flex flex-col z-20 shadow-[1px_0_10px_rgba(0,0,0,0.02)]">
         {/* Brand Area */}
@@ -292,6 +333,7 @@ export function AppShell({ children }: AppShellProps) {
         <main className="flex-1 overflow-y-auto p-4 md:p-8 relative scroll-smooth">
           {children}
         </main>
+      </div>
       </div>
 
       {/* GLOBAL SEARCH MODAL */}

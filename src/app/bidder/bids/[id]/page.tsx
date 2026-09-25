@@ -70,68 +70,142 @@ export default function BidderBidDetailPage() {
         </div>
       </div>
 
-      {/* Grid: Timeline & Statutory Status */}
+      {/* Grid: Timeline & Statutory Status & Chatbot */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Timeline (Spans 2 cols) */}
-        <div className="lg:col-span-2 bg-surface-container-lowest rounded-2xl border border-outline-variant p-6 shadow-sm">
-          <h3 className="font-bold text-base text-primary mb-6 flex items-center gap-2">
-            <span className="material-symbols-outlined text-outline">timeline</span>
-            Submission Verification Timeline
-          </h3>
+        {/* Left Column: Timeline & Statutory (Spans 2 cols) */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Timeline */}
+          <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant p-6 shadow-sm">
+            <h3 className="font-bold text-base text-primary mb-6 flex items-center gap-2">
+              <span className="material-symbols-outlined text-outline">timeline</span>
+              Submission Verification Timeline
+            </h3>
 
-          <div className="relative pl-6 space-y-8 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-outline-variant">
-            {bid.stages.map(stage => {
-              const isDone = stage.status === 'COMPLETED';
-              const isInProg = stage.status === 'IN_PROGRESS';
+            <div className="relative pl-6 space-y-8 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-outline-variant">
+              {bid.stages.map(stage => {
+                const isDone = stage.status === 'COMPLETED';
+                const isInProg = stage.status === 'IN_PROGRESS';
 
-              return (
-                <div key={stage.num} className="relative group">
-                  <div
-                    className={`absolute -left-6 top-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-[11px] font-bold ${
-                      isDone
-                        ? 'bg-success text-white border-success'
-                        : isInProg
-                        ? 'bg-warning text-white border-warning animate-pulse'
-                        : 'bg-white text-neutral-muted border-outline-variant'
-                    }`}
-                  >
-                    {isDone ? '✓' : stage.num}
-                  </div>
-                  <div>
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-bold text-sm text-primary">{stage.title}</h4>
-                      <span className="text-[11px] font-mono text-neutral-muted">{stage.time}</span>
+                return (
+                  <div key={stage.num} className="relative group">
+                    <div
+                      className={`absolute -left-6 top-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-[11px] font-bold ${
+                        isDone
+                          ? 'bg-success text-white border-success'
+                          : isInProg
+                          ? 'bg-warning text-white border-warning animate-pulse'
+                          : 'bg-white text-neutral-muted border-outline-variant'
+                      }`}
+                    >
+                      {isDone ? '✓' : stage.num}
                     </div>
-                    <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">{stage.desc}</p>
+                    <div>
+                      <div className="flex justify-between items-start">
+                        <h4 className="font-bold text-sm text-primary">{stage.title}</h4>
+                        <span className="text-[11px] font-mono text-neutral-muted">{stage.time}</span>
+                      </div>
+                      <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">{stage.desc}</p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Statutory Gateways Health */}
+          <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="font-bold text-base text-primary">Statutory Gateways</h3>
+                <MockBadge label="MOCK" size="sm" variant="amber" />
+              </div>
+              <div className="space-y-3">
+                {bid.verifications.map(v => (
+                  <div key={v.name} className="p-3 bg-surface rounded-xl border border-outline-variant/60 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-primary">{v.name}</span>
+                    <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${v.color}`}>
+                      {v.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-outline-variant/60 text-xs text-neutral-muted">
+              <span className="font-bold text-primary block mb-1">Encrypted Record:</span>
+              SHA-256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+            </div>
           </div>
         </div>
 
-        {/* Statutory Gateways Health */}
-        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant p-6 shadow-sm flex flex-col justify-between">
-          <div>
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="font-bold text-base text-primary">Statutory Gateways</h3>
-              <MockBadge label="MOCK" size="sm" variant="amber" />
+        {/* Right Column: Chatbot (Spans 1 col) */}
+        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant p-0 shadow-sm flex flex-col max-h-[calc(100vh-220px)] overflow-hidden sticky top-0">
+          <div className="bg-primary p-4 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                <span className="material-symbols-outlined text-white text-sm">smart_toy</span>
+              </div>
+              <div>
+                <div className="text-white font-bold text-sm">ProcureAI Assistant</div>
+                <div className="text-primary-fixed-dim text-[10px]">End-to-End Bid Analysis</div>
+              </div>
             </div>
-            <div className="space-y-3">
-              {bid.verifications.map(v => (
-                <div key={v.name} className="p-3 bg-surface rounded-xl border border-outline-variant/60 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-primary">{v.name}</span>
-                  <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${v.color}`}>
-                    {v.status}
-                  </span>
+            <span className="material-symbols-outlined text-white/50 text-sm cursor-pointer hover:text-white transition-colors">refresh</span>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-surface-alt/30 text-sm">
+            {/* AI Welcome */}
+            <div className="flex flex-col items-start max-w-[85%]">
+              <div className="bg-white border border-outline-variant rounded-2xl rounded-tl-none p-3 shadow-sm text-on-surface">
+                <p>Hello! I am your ProcureAI Assistant. I have analyzed your bid <strong>{bid.bidId}</strong>.</p>
+                <p className="mt-2">Would you like me to explain your compliance score or the risk assessment?</p>
+              </div>
+              <span className="text-[10px] text-neutral-muted mt-1 ml-1">AI Agent • Just now</span>
+            </div>
+
+            {/* User Message */}
+            <div className="flex flex-col items-end w-full">
+              <div className="bg-primary text-white rounded-2xl rounded-tr-none p-3 shadow-sm max-w-[85%]">
+                <p>Yes, explain my overall risk score of {bid.complianceScore} and why it is marked as {bid.riskLevel}. Elaborately.</p>
+              </div>
+              <span className="text-[10px] text-neutral-muted mt-1 mr-1">You • Just now</span>
+            </div>
+
+            {/* AI Elaborate Response */}
+            <div className="flex flex-col items-start max-w-[90%]">
+              <div className="bg-white border border-outline-variant rounded-2xl rounded-tl-none p-4 shadow-sm text-on-surface">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="material-symbols-outlined text-warning icon-fill text-[18px]">warning</span>
+                  <span className="font-bold text-primary">Risk Level: {bid.riskLevel} (Score: {bid.complianceScore}/100)</span>
                 </div>
-              ))}
+                <div className="text-xs space-y-3">
+                  <p>Your overall compliance score is <strong>{bid.complianceScore}</strong>. This places your bid in the <strong>{bid.riskLevel}</strong> risk category for the following reasons:</p>
+                  
+                  <div className="bg-surface-variant/50 p-2 rounded-lg border border-outline-variant/50">
+                    <div className="font-semibold text-primary mb-1">1. Local Content Requirement (Major Factor)</div>
+                    <p className="text-on-surface-variant">Your declared local content is <strong>42%</strong>, which falls short of the mandatory <strong>50%</strong> required for Class-I Local Supplier status under the Make in India policy. This triggered a critical flag.</p>
+                  </div>
+
+                  <div className="bg-surface-variant/50 p-2 rounded-lg border border-outline-variant/50">
+                    <div className="font-semibold text-primary mb-1">2. Statutory Compliances (Passed)</div>
+                    <p className="text-on-surface-variant">Your GSTN, PAN, and MSME validations passed successfully with 100% confidence. No issues here.</p>
+                  </div>
+
+                  <p className="font-medium text-primary mt-2">Recommendation for next time:</p>
+                  <p className="text-on-surface-variant">Ensure your bill of materials complies with the Class-I &gt;50% local content mandate to improve your score to the LOW risk tier (90+).</p>
+                </div>
+              </div>
+              <span className="text-[10px] text-neutral-muted mt-1 ml-1">AI Agent • Just now</span>
             </div>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-outline-variant/60 text-xs text-neutral-muted">
-            <span className="font-bold text-primary block mb-1">Encrypted Record:</span>
-            SHA-256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+          <div className="p-3 bg-white border-t border-outline-variant shrink-0">
+            <div className="relative">
+              <input type="text" placeholder="Ask about compliance or rules..." className="w-full bg-surface-variant border border-outline-variant rounded-full pl-4 pr-10 py-2 text-sm focus:outline-none focus:border-primary" disabled />
+              <button className="absolute right-2 top-1.5 w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center disabled:opacity-50" disabled>
+                <span className="material-symbols-outlined text-[14px]">send</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

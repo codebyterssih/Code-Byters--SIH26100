@@ -12,6 +12,8 @@ export default function HomePage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [captchaValue, setCaptchaValue] = useState('');
+  const expectedCaptcha = '7X9P2';
   const { t } = useLanguage();
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -44,6 +46,10 @@ export default function HomePage() {
   const handleGuestLogin = async () => {
     if (!selectedSector) return;
     setErrorMsg('');
+    if (captchaValue.toUpperCase() !== expectedCaptcha) {
+      setErrorMsg('Invalid Security CAPTCHA. Please enter 7X9P2.');
+      return;
+    }
     try {
       await loginAsGuest();
       loginAs(selectedSector);
@@ -237,6 +243,22 @@ export default function HomePage() {
                 </button>
               </div>
 
+              <div className="mt-4 p-3 bg-surface border border-outline-variant rounded-xl flex flex-col gap-2">
+                <label className="text-[10px] font-bold text-neutral-muted uppercase tracking-wider">Security Verification</label>
+                <div className="flex items-center gap-3">
+                  <div className="bg-surface-variant font-mono text-lg font-bold tracking-widest px-4 py-1.5 rounded border border-outline-variant/50 select-none decoration-line-through decoration-neutral-muted/50 text-primary">
+                    {expectedCaptcha}
+                  </div>
+                  <input
+                    type="text"
+                    value={captchaValue}
+                    onChange={(e) => setCaptchaValue(e.target.value)}
+                    placeholder="Enter CAPTCHA"
+                    className="flex-1 px-3 py-1.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary text-sm font-mono uppercase"
+                  />
+                </div>
+              </div>
+
               <div className="mt-6 flex items-center text-xs text-neutral-muted before:flex-1 before:border-t before:border-outline-variant before:mr-4 after:flex-1 after:border-t after:border-outline-variant after:ml-4">
                 {t('login.orSignInWith')}
               </div>
@@ -253,11 +275,19 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={handleGuestLogin}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-outline-variant rounded-xl text-sm font-semibold hover:bg-surface-container transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-outline-variant rounded-xl text-sm font-semibold hover:bg-surface-container transition-colors text-primary"
                 >
                   <span className="material-symbols-outlined text-[18px]">person</span>
                   {t('login.guest')}
                 </button>
+              </div>
+
+              {/* Prototype Disclaimer */}
+              <div className="mt-4 p-3 bg-info/5 border border-info/20 rounded-xl text-center">
+                <p className="text-[11px] text-info font-semibold flex items-center justify-center gap-1.5">
+                  <span className="material-symbols-outlined text-[14px]">info</span>
+                  Prototype Access: Enter the CAPTCHA above and click &quot;Guest&quot; to explore the portal.
+                </p>
               </div>
             </div>
           )}

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useToast } from '@/context/ToastContext';
 
 export interface DocumentViewerData {
@@ -29,8 +30,13 @@ export function DocumentViewerModal({ document, isOpen, onClose }: DocumentViewe
   const { showToast } = useToast();
   const [zoomLevel, setZoomLevel] = useState<number>(100);
   const [activeTab, setActiveTab] = useState<'preview' | 'metadata' | 'extracted'>('preview');
+  const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
 
-  if (!isOpen || !document) return null;
+  useEffect(() => {
+    setPortalRoot(window.document.body);
+  }, []);
+
+  if (!isOpen || !document || !portalRoot) return null;
 
   // Resolve valid PDF URL
   let resolvedPdfUrl = document.pdfUrl;
@@ -60,63 +66,69 @@ export function DocumentViewerModal({ document, isOpen, onClose }: DocumentViewe
     window.open(resolvedPdfUrl, '_blank');
   };
 
-  return (
-    <div className="fixed inset-0 z-[280] flex items-center justify-center p-4 md:p-6">
+  const modalContent = (
+    <div className="fixed inset-0 flex items-center justify-center p-4 md:p-6" style={{ zIndex: 99990 }}>
       {/* Backdrop */}
       <div
-        className="modal-backdrop fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+        style={{ zIndex: 99991 }}
         onClick={onClose}
       />
 
       {/* Modal Card */}
-      <div className="bg-surface-container-lowest w-full max-w-6xl h-[90vh] rounded-2xl shadow-2xl border border-outline-variant relative z-10 flex flex-col overflow-hidden animate-slide-in">
-        {/* Top Header */}
-        <div className="px-6 py-4 border-b border-outline-variant bg-surface flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-danger/10 text-danger flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-[24px]">picture_as_pdf</span>
+      <div
+        className="bg-surface-container-lowest w-full max-w-6xl rounded-2xl shadow-2xl border border-outline-variant flex flex-col overflow-hidden animate-slide-in"
+        style={{ zIndex: 99992, height: 'min(88vh, 900px)' }}
+      >
+        {/* Top Header — always visible */}
+        <div className="px-4 sm:px-6 py-3 border-b border-outline-variant bg-surface flex items-center justify-between gap-3 shrink-0">
+          {/* Left: Doc info */}
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="w-9 h-9 rounded-xl bg-danger/10 text-danger flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[22px]">picture_as_pdf</span>
             </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-muted bg-surface-container px-2 py-0.5 rounded border border-outline-variant">
                   {document.category || 'Statutory Compliance Artifact'}
                 </span>
-                <span className="text-xs font-mono font-bold text-success flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-success"></span>
+                <span className="text-[10px] font-mono font-bold text-success flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-success"></span>
                   SHA-256 Verified
                 </span>
               </div>
-              <h2 className="font-display font-bold text-lg text-primary truncate mt-0.5">
+              <h2 className="font-display font-bold text-sm sm:text-base text-primary truncate mt-0.5">
                 {document.name}
               </h2>
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Right: Action buttons + Close */}
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleOpenNewTab}
-              className="px-3 py-1.5 rounded-lg border border-outline-variant bg-white hover:bg-surface-container text-xs font-semibold text-primary transition-colors flex items-center gap-1.5 shadow-sm"
+              className="px-2.5 py-1.5 rounded-lg border border-outline-variant bg-white hover:bg-surface-container text-xs font-semibold text-primary transition-colors flex items-center gap-1.5 shadow-sm"
               title="Open in new browser tab"
             >
               <span className="material-symbols-outlined text-[16px]">open_in_new</span>
-              <span className="hidden md:inline">Open in Tab</span>
+              <span className="hidden lg:inline">Open in Tab</span>
             </button>
 
             <button
               onClick={handleDownload}
-              className="px-3 py-1.5 rounded-lg bg-primary text-white hover:bg-primary-container text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95"
+              className="px-2.5 py-1.5 rounded-lg bg-primary text-white hover:bg-primary-container text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95"
               title="Download PDF document"
             >
               <span className="material-symbols-outlined text-[16px]">download</span>
-              <span>Download PDF</span>
+              <span className="hidden sm:inline">Download</span>
             </button>
 
-            <div className="h-6 w-px bg-outline-variant mx-1"></div>
+            <div className="h-6 w-px bg-outline-variant mx-0.5"></div>
 
+            {/* Close button — prominent and always visible */}
             <button
               onClick={onClose}
-              className="p-1.5 text-neutral-muted hover:text-primary hover:bg-surface-container rounded-lg transition-colors"
+              className="w-9 h-9 flex items-center justify-center bg-danger/10 hover:bg-danger text-danger hover:text-white rounded-xl transition-all border border-danger/20 hover:border-danger shadow-sm"
               title="Close viewer"
             >
               <span className="material-symbols-outlined text-[20px]">close</span>
@@ -130,11 +142,11 @@ export function DocumentViewerModal({ document, isOpen, onClose }: DocumentViewe
           <div className="flex-1 flex flex-col bg-slate-900/5 relative border-r border-outline-variant/60 min-h-0">
             {/* Viewer Toolbar */}
             <div className="h-10 bg-surface-container-lowest border-b border-outline-variant flex items-center justify-between px-4 shrink-0 text-xs text-neutral-muted">
-              <span className="font-mono text-[11px] text-primary font-semibold">
+              <span className="font-mono text-[11px] text-primary font-semibold truncate">
                 Document Stream: {document.docNumber || document.id}
               </span>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={() => setZoomLevel(prev => Math.max(75, prev - 15))}
                   className="p-1 hover:bg-surface-container rounded transition-colors text-primary"
@@ -154,7 +166,7 @@ export function DocumentViewerModal({ document, isOpen, onClose }: DocumentViewe
             </div>
 
             {/* Rendered PDF Iframe */}
-            <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-slate-100/60">
+            <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-slate-100/60 min-h-0">
               <div
                 className="w-full h-full bg-white rounded-xl shadow-lg border border-outline-variant overflow-hidden transition-all duration-150"
                 style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: 'top center' }}
@@ -309,4 +321,6 @@ export function DocumentViewerModal({ document, isOpen, onClose }: DocumentViewe
       </div>
     </div>
   );
+
+  return createPortal(modalContent, portalRoot);
 }
